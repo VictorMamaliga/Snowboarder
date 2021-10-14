@@ -1,14 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class CrashDetector : MonoBehaviour
+public class CrashDetector: MonoBehaviour
 {
-    void OnTriggerEnter2D(Collider2D collision)
+    [SerializeField] float loadDelay = 1f;
+    [SerializeField] ParticleSystem crashEffect;
+    [SerializeField] AudioClip crashSFX;
+    bool hasCrashed = false;
+
+
+    void OnTriggerEnter2D(Collider2D other)
     {
-        if (collision.tag == "Ground")
+        if (other.tag == "Ground" && !hasCrashed )
         {
-            Debug.Log("You Crashed!");
+            hasCrashed = true;
+            FindObjectOfType<PlayeController>().DisableControls();
+            crashEffect.Play();
+            GetComponent<AudioSource>().PlayOneShot(crashSFX);    
+            Invoke("ReloadScene", loadDelay);
         }
+    }
+
+    void ReloadScene()
+    {
+        SceneManager.LoadScene(0);
     }
 }
